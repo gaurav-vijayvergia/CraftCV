@@ -6,23 +6,58 @@ interface CV {
   id: string;
   name: string;
   uploadDate: string;
-  status: 'Processing' | 'Branded';
+  status: 'Processing' | 'Crafted';
   previewUrl?: string;
 }
 
 const mockCVs: CV[] = [
   {
     id: '1',
-    name: 'John_Doe_Resume.pdf',
+    name: 'Thomas Philips Formatted.doc',
     uploadDate: '2024-03-15',
-    status: 'Branded',
+    status: 'Crafted',
     previewUrl: 'https://example.com/preview/john-doe-resume.pdf',
   },
   {
     id: '2',
-    name: 'Jane_Smith_CV.docx',
+    name: 'Vineet Sekaran Formatted.doc',
     uploadDate: '2024-03-14',
     status: 'Processing',
+    previewUrl: 'https://example.com/preview/jane-smith-cv.pdf',
+  },
+  {
+    id: '3',
+    name: 'Gibson Tan Formatted.docx',
+    uploadDate: '2024-03-14',
+    status: 'Crafted',
+    previewUrl: 'https://example.com/preview/jane-smith-cv.pdf',
+  },
+  {
+    id: '4',
+    name: 'Goel Deepak Formatted.docx',
+    uploadDate: '2024-03-14',
+    status: 'Crafted',
+    previewUrl: 'https://example.com/preview/jane-smith-cv.pdf',
+  },
+  {
+    id: '5',
+    name: 'CV Jie Kuang Formatted.pdf',
+    uploadDate: '2024-03-14',
+    status: 'Processing',
+    previewUrl: 'https://example.com/preview/jane-smith-cv.pdf',
+  },
+  {
+    id: '6',
+    name: 'CV Vincent Leonard Formatted.pdf',
+    uploadDate: '2024-03-14',
+    status: 'Processing',
+    previewUrl: 'https://example.com/preview/jane-smith-cv.pdf',
+  },
+  {
+    id: '7',
+    name: 'David Tang_20220605 Formatted',
+    uploadDate: '2024-03-14',
+    status: 'Crafted',
     previewUrl: 'https://example.com/preview/jane-smith-cv.pdf',
   },
 ];
@@ -43,9 +78,9 @@ export default function CVListing() {
     <div className="p-6">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-2xl font-semibold text-gray-900">CV Listing</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">Crafted CVs</h1>
           <p className="mt-2 text-sm text-gray-700">
-            A list of all CVs uploaded to your account
+            A list of uploaded CVs with Craft Status
           </p>
         </div>
       </div>
@@ -103,7 +138,7 @@ export default function CVListing() {
                         <span
                           className={cn(
                             'inline-flex rounded-full px-2 text-xs font-semibold leading-5',
-                            cv.status === 'Branded'
+                            cv.status === 'Crafted'
                               ? 'bg-green-100 text-green-800'
                               : 'bg-yellow-100 text-yellow-800'
                           )}

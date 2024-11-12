@@ -89,10 +89,10 @@ function UploadCV() {
           <input {...getInputProps()} />
           <Upload className="mx-auto h-12 w-12 text-gray-400" />
           <p className="mt-2 text-sm text-gray-600">
-            Drag 'n' drop some files here, or click to select files
+            Drag 'n' drop CV files here, or click to select file(s)
           </p>
           <p className="text-xs text-gray-500">
-            Supports PDF, DOC, DOCX, TXT, and RTF
+            Supports PDF, DOCX, and RTF
           </p>
         </div>
       )}
@@ -168,7 +168,7 @@ function UploadCV() {
                 ) : (
                   <>
                     <Check className="h-4 w-4" />
-                    <span>Confirm & Process</span>
+                    <span>Craft CVs</span>
                   </>
                 )}
               </button>

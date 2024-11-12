@@ -6,7 +6,7 @@ import { useOrganizationStore } from '../store/organization';
 
 const navigation = [
   { name: 'Upload CV', path: '/upload-cv', icon: Upload },
-  { name: 'CV Listing', path: '/cv-listing', icon: List },
+  { name: 'Crafted CVs', path: '/cv-listing', icon: List },
   { name: 'Organisation Settings', path: '/settings', icon: Settings },
 ];
 
