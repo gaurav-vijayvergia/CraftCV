@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FileText, Loader2 } from 'lucide-react';
+import { FileText, Loader2, AlertCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/auth';
+import { cn } from '../../lib/utils';
 
 function Signup() {
   const navigate = useNavigate();
-  const { signup, error: authError, isLoading } = useAuthStore();
+  const { signup, error: authError, isLoading, clearError } = useAuthStore();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     password: '',
+    confirmPassword: '',
   });
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -18,10 +21,39 @@ function Signup() {
       ...prev,
       [name]: value,
     }));
+    // Clear errors when user starts typing
+    setValidationError(null);
+    clearError();
+  };
+
+  const validateForm = () => {
+    if (!formData.username.trim()) {
+      setValidationError('Username is required');
+      return false;
+    }
+    if (!formData.email.trim()) {
+      setValidationError('Email is required');
+      return false;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setValidationError('Invalid email format');
+      return false;
+    }
+    if (formData.password.length < 6) {
+      setValidationError('Password must be at least 6 characters long');
+      return false;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setValidationError('Passwords do not match');
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) return;
+
     try {
       await signup(formData.username, formData.email, formData.password);
       navigate('/');
@@ -29,6 +61,8 @@ function Signup() {
       console.error('Signup failed:', error);
     }
   };
+
+  const error = validationError || authError;
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -39,6 +73,12 @@ function Signup() {
         <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
           Create your account
         </h2>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Already have an account?{' '}
+          <Link to="/login" className="text-primary hover:text-primary/90">
+            Sign in
+          </Link>
+        </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -58,7 +98,12 @@ function Signup() {
                 required
                 value={formData.username}
                 onChange={handleInputChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
+                className={cn(
+                  "mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-primary sm:text-sm",
+                  error
+                    ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:border-primary focus:ring-primary"
+                )}
               />
             </div>
 
@@ -76,7 +121,12 @@ function Signup() {
                 required
                 value={formData.email}
                 onChange={handleInputChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
+                className={cn(
+                  "mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-primary sm:text-sm",
+                  error
+                    ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:border-primary focus:ring-primary"
+                )}
               />
             </div>
 
@@ -94,44 +144,63 @@ function Signup() {
                 required
                 value={formData.password}
                 onChange={handleInputChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
+                className={cn(
+                  "mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-primary sm:text-sm",
+                  error
+                    ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:border-primary focus:ring-primary"
+                )}
               />
             </div>
 
-            {authError && (
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Confirm Password
+              </label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                required
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                className={cn(
+                  "mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-primary sm:text-sm",
+                  error
+                    ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:border-primary focus:ring-primary"
+                )}
+              />
+            </div>
+
+            {error && (
               <div className="rounded-md bg-red-50 p-4">
-                <p className="text-sm text-red-800">{authError}</p>
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <AlertCircle className="h-5 w-5 text-red-400" />
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-red-800">{error}</p>
+                  </div>
+                </div>
               </div>
             )}
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <Loader2 className="animate-spin h-5 w-5" />
               ) : (
-                'Sign up'
+                'Create Account'
               )}
             </button>
           </form>
-
-          <div className="mt-6">
-            <div className="relative">
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 text-gray-500">
-                  Already have an account?{' '}
-                  <Link
-                    to="/login"
-                    className="font-medium text-primary hover:text-primary/90"
-                  >
-                    Sign in
-                  </Link>
-                </span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

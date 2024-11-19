@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FileText, Loader2 } from 'lucide-react';
+import { FileText, Loader2, AlertCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/auth';
+import { cn } from '../../lib/utils';
 
 function Login() {
   const navigate = useNavigate();
-  const { login, error: authError, isLoading } = useAuthStore();
+  const { login, error: authError, isLoading, clearError } = useAuthStore();
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -17,6 +18,7 @@ function Login() {
       ...prev,
       [name]: value,
     }));
+    clearError();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,9 +41,9 @@ function Login() {
           Sign in to your account
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Or{' '}
-          <Link to="/signup" className="text-primary hover:text-primary/90">
-            create a new account
+          Don't have an account?{' '}
+          <Link to="/signup" className="text-primary hover:text-primary/90 font-medium">
+            Create one now
           </Link>
         </p>
       </div>
@@ -63,8 +65,13 @@ function Login() {
                 required
                 value={formData.username}
                 onChange={handleInputChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
-                placeholder="demo"
+                className={cn(
+                  "mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-primary sm:text-sm",
+                  authError
+                    ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:border-primary focus:ring-primary"
+                )}
+                placeholder="Enter your username"
               />
             </div>
 
@@ -82,14 +89,26 @@ function Login() {
                 required
                 value={formData.password}
                 onChange={handleInputChange}
-                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
-                placeholder="demo123"
+                className={cn(
+                  "mt-1 block w-full rounded-md border px-3 py-2 shadow-sm focus:outline-none focus:ring-primary sm:text-sm",
+                  authError
+                    ? "border-red-300 focus:border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:border-primary focus:ring-primary"
+                )}
+                placeholder="Enter your password"
               />
             </div>
 
             {authError && (
               <div className="rounded-md bg-red-50 p-4">
-                <p className="text-sm text-red-800">{authError}</p>
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <AlertCircle className="h-5 w-5 text-red-400" />
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-red-800">{authError}</p>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -97,7 +116,7 @@ function Login() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
               >
                 {isLoading ? (
                   <Loader2 className="animate-spin h-5 w-5" />
@@ -107,8 +126,21 @@ function Login() {
               </button>
             </div>
 
-            <div className="text-sm text-center text-gray-600">
-              Demo credentials: demo / demo123
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">
+                    Demo credentials
+                  </span>
+                </div>
+              </div>
+              <div className="mt-3 text-center text-sm text-gray-600">
+                <p>Username: <span className="font-medium">demo</span></p>
+                <p>Password: <span className="font-medium">demo123</span></p>
+              </div>
             </div>
           </form>
         </div>
