@@ -11,3 +11,12 @@ pydantic-settings
 aiofiles
 email-validator
 tzdata
+openai
+python-docx
+PyPDF2
+langchain-openai
+langchain-core
+tiktoken
+alembic
+mysqlclient
+python-docx

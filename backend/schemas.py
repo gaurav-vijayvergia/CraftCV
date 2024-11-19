@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, HttpUrl
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from datetime import datetime
 from .models import CVStatus
 
@@ -57,6 +57,7 @@ class CV(CVBase):
     id: str
     user_id: str
     status: CVStatus
+    parsed_data: Optional[Dict[str, Any]] = None
     created_at: datetime
 
     class Config:

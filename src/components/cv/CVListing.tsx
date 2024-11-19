@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react';
-import { FileText, Download, Eye, X, Loader2, Trash2, AlertCircle } from 'lucide-react';
+import { FileText, Download, Eye, X, Loader2, Trash2, AlertCircle, UserCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { useCVStore } from '../../store/cv';
 import { cn } from '../../lib/utils';
+import CVProfile from './CVProfile';
 
 export default function CVListing() {
-  const { cvs, isLoading, error, fetchCVs, updateStatus, deleteCV } = useCVStore();
+  const { cvs, isLoading, error, fetchCVs, updateStatus, deleteCV, fetchParsedData } = useCVStore();
   const [previewCV, setPreviewCV] = useState<typeof cvs[0] | null>(null);
   const [deleteConfirmCV, setDeleteConfirmCV] = useState<typeof cvs[0] | null>(null);
+  const [profileCV, setProfileCV] = useState<typeof cvs[0] | null>(null);
+  const [parsedData, setParsedData] = useState<any>(null);
+  const [loadingProfile, setLoadingProfile] = useState(false);
 
   useEffect(() => {
     fetchCVs();
@@ -15,6 +19,19 @@ export default function CVListing() {
 
   const handlePreview = (cv: typeof cvs[0]) => {
     setPreviewCV(cv);
+  };
+
+  const handleViewProfile = async (cv: typeof cvs[0]) => {
+    setLoadingProfile(true);
+    try {
+      const data = await fetchParsedData(cv.id);
+      setParsedData(data);
+      setProfileCV(cv);
+    } catch (error) {
+      console.error('Failed to fetch profile data:', error);
+    } finally {
+      setLoadingProfile(false);
+    }
   };
 
   const handleDownload = async (fileUrl: string, filename: string) => {
@@ -34,7 +51,7 @@ export default function CVListing() {
     }
   };
 
-  const handleStatusUpdate = async (cvId: string, status: 'Processing' | 'Branded') => {
+  const handleStatusUpdate = async (cvId: string, status: 'Processing' | 'Crafted') => {
     try {
       await updateStatus(cvId, status);
     } catch (error) {
@@ -152,12 +169,12 @@ export default function CVListing() {
                                   onClick={() =>
                                       handleStatusUpdate(
                                           cv.id,
-                                          cv.status === 'Processing' ? 'Branded' : 'Processing'
+                                          cv.status === 'Processing' ? 'Crafted' : 'Processing'
                                       )
                                   }
                                   className={cn(
                                       'inline-flex rounded-full px-2 text-xs font-semibold leading-5 cursor-pointer transition-colors',
-                                      cv.status === 'Branded'
+                                      cv.status === 'Crafted'
                                           ? 'bg-green-100 text-green-800 hover:bg-green-200'
                                           : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
                                   )}
@@ -166,6 +183,15 @@ export default function CVListing() {
                               </button>
                             </td>
                             <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                              <button
+                                  onClick={() => handleViewProfile(cv)}
+                                  className="text-primary hover:text-primary/90 mr-4 transition-colors"
+                                  title="View Profile"
+                                  disabled={loadingProfile}
+                              >
+                                <UserCircle className="h-5 w-5" />
+                                <span className="sr-only">View Profile</span>
+                              </button>
                               <button
                                   onClick={() => handlePreview(cv)}
                                   className="text-primary hover:text-primary/90 mr-4 transition-colors"
@@ -223,6 +249,17 @@ export default function CVListing() {
                 </div>
               </div>
             </div>
+        )}
+
+        {/* Profile Modal */}
+        {profileCV && parsedData && (
+            <CVProfile
+                parsedData={parsedData}
+                onClose={() => {
+                  setProfileCV(null);
+                  setParsedData(null);
+                }}
+            />
         )}
 
         {/* Delete Confirmation Modal */}

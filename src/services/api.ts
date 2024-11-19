@@ -31,8 +31,9 @@ interface CV {
   id: string;
   original_filename: string;
   file_url: string;
-  status: 'Processing' | 'Branded';
+  status: 'Processing' | 'Crafted';
   created_at: string;
+  parsed_data?: Record<string, unknown>;
 }
 
 export const loginUser = async (username: string, password: string): Promise<LoginResponse> => {
@@ -107,11 +108,16 @@ export const getCVs = async (): Promise<CV[]> => {
   return response.data;
 };
 
-export const updateCVStatus = async (cvId: string, status: 'Processing' | 'Branded'): Promise<CV> => {
+export const updateCVStatus = async (cvId: string, status: CV['status']): Promise<CV> => {
   const response = await api.patch<CV>(`/cv/${cvId}`, { status });
   return response.data;
 };
 
 export const deleteCV = async (cvId: string): Promise<void> => {
   await api.delete(`/cv/${cvId}`);
+};
+
+export const getParsedData = async (cvId: string): Promise<any> => {
+  const response = await api.get(`/cv/${cvId}/parsed-data`);
+  return response.data;
 };

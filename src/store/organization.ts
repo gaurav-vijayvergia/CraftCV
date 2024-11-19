@@ -29,7 +29,7 @@ interface OrganizationState {
   removeTemplate: () => Promise<void>;
 }
 
-export const useOrganizationStore = create<OrganizationState>((set, get) => ({
+export const useOrganizationStore = create<OrganizationState>((set) => ({
   settings: {
     logo: null,
     primaryColor: '#2563eb',
@@ -55,7 +55,7 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
         },
         isLoading: false,
       });
-    } catch (error) {
+    } catch {
       set({ error: 'Failed to fetch organization settings', isLoading: false });
     }
   },
@@ -81,7 +81,7 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
         },
         isLoading: false,
       });
-    } catch (error) {
+    } catch {
       set({ error: 'Failed to update organization settings', isLoading: false });
     }
   },
@@ -93,19 +93,19 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
         settings: { ...state.settings, logo: data.logo_url },
         isLoading: false,
       }));
-    } catch (error) {
+    } catch {
       set({ error: 'Failed to upload logo', isLoading: false });
     }
   },
   removeLogo: async () => {
     set({ isLoading: true, error: null });
     try {
-      const data = await deleteLogo();
+      await deleteLogo();
       set((state) => ({
         settings: { ...state.settings, logo: null },
         isLoading: false,
       }));
-    } catch (error) {
+    } catch {
       set({ error: 'Failed to remove logo', isLoading: false });
     }
   },
@@ -117,7 +117,7 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
         settings: { ...state.settings, cvTemplate: data.cv_template_url },
         isLoading: false,
       }));
-    } catch (error) {
+    } catch {
       set({ error: 'Failed to upload template', isLoading: false });
     }
   },
@@ -129,7 +129,7 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
         settings: { ...state.settings, cvTemplate: null },
         isLoading: false,
       }));
-    } catch (error) {
+    } catch {
       set({ error: 'Failed to remove template', isLoading: false });
     }
   },

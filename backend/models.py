@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, ForeignKey, Enum as SQLEnum, Text
+from sqlalchemy import Column, String, DateTime, ForeignKey, Enum as SQLEnum, Text, JSON
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from .database import Base
@@ -7,7 +7,7 @@ import enum
 
 class CVStatus(str, enum.Enum):
     PROCESSING = "Processing"
-    BRANDED = "Branded"
+    CRAFTED = "Crafted"
 
 class User(Base):
     __tablename__ = "users"
@@ -44,6 +44,7 @@ class CV(Base):
     original_filename = Column(String(255), nullable=False)
     file_url = Column(Text, nullable=False)
     status = Column(SQLEnum(CVStatus), default=CVStatus.PROCESSING)
+    parsed_data = Column(JSON, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="cvs")

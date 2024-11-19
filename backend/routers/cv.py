@@ -5,14 +5,18 @@ from ..database import get_db
 from ..models import CV, User
 from ..schemas import CVCreate, CV as CVSchema, BulkCVUpload, CVUpdate
 from ..dependencies import get_current_user
+from ..services.cv_parser import CVParser
 import aiofiles
 import os
 from uuid import uuid4
+import json
 
 router = APIRouter()
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+cv_parser = CVParser()
 
 async def save_upload_file(file: UploadFile) -> str:
     file_extension = os.path.splitext(file.filename)[1]
@@ -37,14 +41,33 @@ async def upload_cvs(
 ):
     uploaded_cvs = []
     for file in files:
-        file_path = await save_upload_file(file)
-        cv = CV(
-            user_id=current_user.id,
-            original_filename=file.filename,
-            file_url=file_path
-        )
-        db.add(cv)
-        uploaded_cvs.append(cv)
+        try:
+            # Save the file
+            file_path = await save_upload_file(file)
+
+            # Parse the CV using LLM
+            parsed_data = await cv_parser.parse_cv(file_path)
+
+            # Create CV record with parsed data
+            cv = CV(
+                user_id=current_user.id,
+                original_filename=file.filename,
+                file_url=file_path,
+                parsed_data=parsed_data
+            )
+            db.add(cv)
+            uploaded_cvs.append(cv)
+
+        except Exception as e:
+            # If parsing fails, still save the CV but without parsed data
+            cv = CV(
+                user_id=current_user.id,
+                original_filename=file.filename,
+                file_url=file_path
+            )
+            db.add(cv)
+            uploaded_cvs.append(cv)
+            print(f"Error processing CV {file.filename}: {str(e)}")
 
     db.commit()
     for cv in uploaded_cvs:
@@ -58,6 +81,21 @@ async def get_cvs(
         current_user: User = Depends(get_current_user)
 ):
     return db.query(CV).filter(CV.user_id == current_user.id).all()
+
+@router.get("/{cv_id}/parsed-data")
+async def get_cv_parsed_data(
+        cv_id: str,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+):
+    cv = db.query(CV).filter(CV.id == cv_id, CV.user_id == current_user.id).first()
+    if not cv:
+        raise HTTPException(status_code=404, detail="CV not found")
+
+    if not cv.parsed_data:
+        raise HTTPException(status_code=404, detail="No parsed data available for this CV")
+
+    return cv.parsed_data
 
 @router.patch("/{cv_id}", response_model=CVSchema)
 async def update_cv_status(
