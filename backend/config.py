@@ -10,5 +10,7 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+        env_file_encoding = "utf-8"
+        extra = "ignore"  # This will ignore any extra fields in the .env file
 
 settings = Settings()

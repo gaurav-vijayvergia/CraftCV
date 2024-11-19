@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
 // Add auth token to requests
@@ -16,11 +16,6 @@ api.interceptors.request.use((config) => {
 interface LoginResponse {
   access_token: string;
   token_type: string;
-}
-
-interface UserData {
-  username: string;
-  email: string;
 }
 
 interface OrganizationData {
@@ -44,7 +39,7 @@ export const loginUser = async (username: string, password: string): Promise<Log
   const formData = new FormData();
   formData.append('username', username);
   formData.append('password', password);
-  
+
   const response = await api.post<LoginResponse>('/auth/token', formData);
   localStorage.setItem('token', response.data.access_token);
   return response.data;
@@ -81,10 +76,20 @@ export const uploadLogo = async (file: File): Promise<OrganizationData> => {
   return response.data;
 };
 
+export const deleteLogo = async (): Promise<OrganizationData> => {
+  const response = await api.delete<OrganizationData>('/organization/logo');
+  return response.data;
+};
+
 export const uploadTemplate = async (file: File): Promise<OrganizationData> => {
   const formData = new FormData();
   formData.append('file', file);
   const response = await api.post<OrganizationData>('/organization/template', formData);
+  return response.data;
+};
+
+export const deleteTemplate = async (): Promise<OrganizationData> => {
+  const response = await api.delete<OrganizationData>('/organization/template');
   return response.data;
 };
 
@@ -105,4 +110,8 @@ export const getCVs = async (): Promise<CV[]> => {
 export const updateCVStatus = async (cvId: string, status: 'Processing' | 'Branded'): Promise<CV> => {
   const response = await api.patch<CV>(`/cv/${cvId}`, { status });
   return response.data;
+};
+
+export const deleteCV = async (cvId: string): Promise<void> => {
+  await api.delete(`/cv/${cvId}`);
 };

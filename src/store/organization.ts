@@ -1,5 +1,12 @@
 import { create } from 'zustand';
-import { getOrganization, updateOrganization, uploadLogo, uploadTemplate } from '../services/api';
+import {
+  getOrganization,
+  updateOrganization,
+  uploadLogo,
+  deleteLogo,
+  uploadTemplate,
+  deleteTemplate,
+} from '../services/api';
 
 interface OrganizationSettings {
   logo: string | null;
@@ -17,7 +24,9 @@ interface OrganizationState {
   fetchSettings: () => Promise<void>;
   updateSettings: (settings: Partial<OrganizationSettings>) => Promise<void>;
   uploadLogo: (file: File) => Promise<void>;
+  removeLogo: () => Promise<void>;
   uploadTemplate: (file: File) => Promise<void>;
+  removeTemplate: () => Promise<void>;
 }
 
 export const useOrganizationStore = create<OrganizationState>((set, get) => ({
@@ -88,6 +97,18 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
       set({ error: 'Failed to upload logo', isLoading: false });
     }
   },
+  removeLogo: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const data = await deleteLogo();
+      set((state) => ({
+        settings: { ...state.settings, logo: null },
+        isLoading: false,
+      }));
+    } catch (error) {
+      set({ error: 'Failed to remove logo', isLoading: false });
+    }
+  },
   uploadTemplate: async (file: File) => {
     set({ isLoading: true, error: null });
     try {
@@ -98,6 +119,18 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
       }));
     } catch (error) {
       set({ error: 'Failed to upload template', isLoading: false });
+    }
+  },
+  removeTemplate: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      await deleteTemplate();
+      set((state) => ({
+        settings: { ...state.settings, cvTemplate: null },
+        isLoading: false,
+      }));
+    } catch (error) {
+      set({ error: 'Failed to remove template', isLoading: false });
     }
   },
 }));
