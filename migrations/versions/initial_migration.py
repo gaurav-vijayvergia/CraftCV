@@ -1,19 +1,26 @@
 """Initial migration
 
 Revision ID: 1a2b3c4d5e6f
-Revises: 
+Revises:
 Create Date: 2024-03-15 10:00:00.000000
 
 """
 from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.sql import table, column
+from datetime import datetime
+import uuid
+from passlib.context import CryptContext
 
 # revision identifiers, used by Alembic.
 revision: str = '1a2b3c4d5e6f'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
+
+# Password hashing
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def upgrade() -> None:
     # Create users table
@@ -51,6 +58,43 @@ def upgrade() -> None:
         sa.Column('parsed_data', sa.JSON, nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'))
     )
+
+    # Create default administrator user
+    users = table('users',
+                  column('id', sa.String),
+                  column('username', sa.String),
+                  column('email', sa.String),
+                  column('password', sa.String),
+                  column('created_at', sa.DateTime)
+                  )
+
+    admin_id = str(uuid.uuid4())
+    hashed_password = pwd_context.hash('@raft@V')
+
+    op.bulk_insert(users, [
+        {
+            'id': admin_id,
+            'username': 'administrator',
+            'email': 'administrator@craftcv.ai',
+            'password': hashed_password,
+            'created_at': datetime.utcnow()
+        }
+    ])
+
+    # Create default organization for administrator
+    organizations = table('organizations',
+                          column('id', sa.String),
+                          column('user_id', sa.String),
+                          column('created_at', sa.DateTime)
+                          )
+
+    op.bulk_insert(organizations, [
+        {
+            'id': str(uuid.uuid4()),
+            'user_id': admin_id,
+            'created_at': datetime.utcnow()
+        }
+    ])
 
 def downgrade() -> None:
     op.drop_table('cvs')
