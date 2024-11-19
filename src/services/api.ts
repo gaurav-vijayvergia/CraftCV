@@ -1,33 +1,108 @@
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: 'http://localhost:8000/api',
+});
+
+// Add auth token to requests
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 interface LoginResponse {
-  token: string;
-  user: {
-    id: string;
-    username: string;
-    email: string;
-  };
+  access_token: string;
+  token_type: string;
 }
 
-// Mock API response for demonstration
-const mockLoginResponse: LoginResponse = {
-  token: 'mock-jwt-token',
-  user: {
-    id: '1',
-    username: 'demo',
-    email: 'demo@example.com',
-  },
+interface UserData {
+  username: string;
+  email: string;
+}
+
+interface OrganizationData {
+  logo_url: string | null;
+  primary_color: string;
+  secondary_color: string;
+  font: string;
+  cv_template_url: string | null;
+  theme: 'light' | 'dark';
+}
+
+interface CV {
+  id: string;
+  original_filename: string;
+  file_url: string;
+  status: 'Processing' | 'Branded';
+  created_at: string;
+}
+
+export const loginUser = async (username: string, password: string): Promise<LoginResponse> => {
+  const formData = new FormData();
+  formData.append('username', username);
+  formData.append('password', password);
+  
+  const response = await api.post<LoginResponse>('/auth/token', formData);
+  localStorage.setItem('token', response.data.access_token);
+  return response.data;
 };
 
-export const loginUser = async (
-  username: string,
-  password: string
-): Promise<LoginResponse> => {
-  // Simulate API call delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+export const signupUser = async (username: string, email: string, password: string): Promise<LoginResponse> => {
+  const response = await api.post<LoginResponse>('/auth/signup', {
+    username,
+    email,
+    password,
+  });
+  localStorage.setItem('token', response.data.access_token);
+  return response.data;
+};
 
-  // Mock authentication logic
-  if (username === 'demo' && password === 'demo123') {
-    return mockLoginResponse;
-  }
+export const logout = () => {
+  localStorage.removeItem('token');
+};
 
-  throw new Error('Invalid credentials');
+export const getOrganization = async (): Promise<OrganizationData> => {
+  const response = await api.get<OrganizationData>('/organization');
+  return response.data;
+};
+
+export const updateOrganization = async (data: Partial<OrganizationData>): Promise<OrganizationData> => {
+  const response = await api.patch<OrganizationData>('/organization', data);
+  return response.data;
+};
+
+export const uploadLogo = async (file: File): Promise<OrganizationData> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await api.post<OrganizationData>('/organization/logo', formData);
+  return response.data;
+};
+
+export const uploadTemplate = async (file: File): Promise<OrganizationData> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await api.post<OrganizationData>('/organization/template', formData);
+  return response.data;
+};
+
+export const uploadCVs = async (files: File[]): Promise<CV[]> => {
+  const formData = new FormData();
+  files.forEach((file) => {
+    formData.append('files', file);
+  });
+  const response = await api.post<CV[]>('/cv/upload', formData);
+  return response.data;
+};
+
+export const getCVs = async (): Promise<CV[]> => {
+  const response = await api.get<CV[]>('/cv');
+  return response.data;
+};
+
+export const updateCVStatus = async (cvId: string, status: 'Processing' | 'Branded'): Promise<CV> => {
+  const response = await api.patch<CV>(`/cv/${cvId}`, { status });
+  return response.data;
 };

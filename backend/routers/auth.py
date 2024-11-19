@@ -3,8 +3,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from ..database import get_db
-from ..models import User
-from ..schemas import UserCreate, Token
+from ..models import User, Organization
+from ..schemas import UserCreate, Token, User as UserSchema
 from ..security import verify_password, get_password_hash, create_access_token
 from ..config import settings
 
@@ -47,6 +47,11 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+    
+    # Create default organization for the user
+    organization = Organization(user_id=db_user.id)
+    db.add(organization)
+    db.commit()
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(

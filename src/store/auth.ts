@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { loginUser } from '../services/api';
+import { loginUser as apiLogin, signupUser as apiSignup, logout as apiLogout } from '../services/api';
 
 interface User {
   id: string;
@@ -20,15 +20,14 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  isAuthenticated: false,
+  isAuthenticated: !!localStorage.getItem('token'),
   isLoading: false,
   error: null,
   login: async (username: string, password: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await loginUser(username, password);
+      await apiLogin(username, password);
       set({
-        user: response.user,
         isAuthenticated: true,
         isLoading: false,
         error: null,
@@ -46,10 +45,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   signup: async (username: string, email: string, password: string) => {
     set({ isLoading: true, error: null });
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await apiSignup(username, email, password);
       set({
-        user: { id: '1', username, email },
         isAuthenticated: true,
         isLoading: false,
         error: null,
@@ -65,6 +62,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
   logout: () => {
+    apiLogout();
     set({
       user: null,
       isAuthenticated: false,

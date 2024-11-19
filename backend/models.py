@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, ForeignKey, Enum as SQLEnum
+from sqlalchemy import Column, String, DateTime, ForeignKey, Enum as SQLEnum, Text
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from .database import Base
@@ -26,11 +26,12 @@ class Organization(Base):
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
-    logo_url = Column(String(255), nullable=True)
+    logo_url = Column(Text, nullable=True)
     primary_color = Column(String(7), default="#2563eb")
     secondary_color = Column(String(7), default="#1e40af")
     font = Column(String(255), default="Inter")
-    cv_template_url = Column(String(255), nullable=True)
+    cv_template_url = Column(Text, nullable=True)
+    theme = Column(String(10), default="light")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="organization")
@@ -41,7 +42,7 @@ class CV(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
     original_filename = Column(String(255), nullable=False)
-    file_url = Column(String(255), nullable=False)
+    file_url = Column(Text, nullable=False)
     status = Column(SQLEnum(CVStatus), default=CVStatus.PROCESSING)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

@@ -1,5 +1,5 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional
+from pydantic import BaseModel, EmailStr, HttpUrl
+from typing import Optional, List
 from datetime import datetime
 from .models import CVStatus
 
@@ -30,6 +30,7 @@ class OrganizationBase(BaseModel):
     secondary_color: str = "#1e40af"
     font: str = "Inter"
     cv_template_url: Optional[str] = None
+    theme: str = "light"
 
 class OrganizationCreate(OrganizationBase):
     pass
@@ -49,6 +50,9 @@ class CVBase(BaseModel):
 class CVCreate(CVBase):
     pass
 
+class CVUpdate(BaseModel):
+    status: CVStatus
+
 class CV(CVBase):
     id: str
     user_id: str
@@ -57,3 +61,6 @@ class CV(CVBase):
 
     class Config:
         from_attributes = True
+
+class BulkCVUpload(BaseModel):
+    files: List[CVCreate]
