@@ -1,4 +1,5 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+import { useAuthStore } from '../store/auth';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -12,6 +13,18 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Handle token expiry
+api.interceptors.response.use(
+    (response) => response,
+    (error: AxiosError) => {
+      if (error.response?.status === 401) {
+        // Token expired or invalid
+        useAuthStore.getState().logout();
+      }
+      return Promise.reject(error);
+    }
+);
 
 interface LoginResponse {
   access_token: string;
@@ -40,7 +53,7 @@ export const loginUser = async (username: string, password: string): Promise<Log
   const formData = new FormData();
   formData.append('username', username);
   formData.append('password', password);
-  
+
   const response = await api.post<LoginResponse>('/auth/token', formData);
   localStorage.setItem('token', response.data.access_token);
   return response.data;
