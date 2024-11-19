@@ -52,7 +52,7 @@ class CVParser:
 
     def extract_text(self, file_path: str) -> str:
         file_extension = os.path.splitext(file_path)[1].lower()
-
+        
         if file_extension == '.pdf':
             return self.extract_text_from_pdf(file_path)
         elif file_extension in ['.docx', '.doc']:

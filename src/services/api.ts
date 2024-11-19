@@ -40,7 +40,7 @@ export const loginUser = async (username: string, password: string): Promise<Log
   const formData = new FormData();
   formData.append('username', username);
   formData.append('password', password);
-
+  
   const response = await api.post<LoginResponse>('/auth/token', formData);
   localStorage.setItem('token', response.data.access_token);
   return response.data;

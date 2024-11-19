@@ -91,12 +91,12 @@ export const useCVStore = create<CVState>((set) => ({
       const updatedCV = await updateCVStatus(cvId, status);
       set((state) => ({
         cvs: state.cvs.map((cv) =>
-            cv.id === cvId
-                ? {
-                  ...cv,
-                  status: updatedCV.status as CV['status'],
-                }
-                : cv
+          cv.id === cvId
+            ? {
+                ...cv,
+                status: updatedCV.status as CV['status'],
+              }
+            : cv
         ),
         isLoading: false,
       }));
