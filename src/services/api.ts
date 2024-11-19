@@ -31,7 +31,7 @@ interface CV {
   id: string;
   original_filename: string;
   file_url: string;
-  status: 'Processing' | 'Crafted';
+  status: 'PROCESSING' | 'CRAFTED';
   created_at: string;
   parsed_data?: Record<string, unknown>;
 }

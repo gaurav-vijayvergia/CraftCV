@@ -6,8 +6,8 @@ import uuid
 import enum
 
 class CVStatus(str, enum.Enum):
-    PROCESSING = "Processing"
-    CRAFTED = "Crafted"
+    PROCESSING = "PROCESSING"
+    CRAFTED = "CRAFTED"
 
 class User(Base):
     __tablename__ = "users"

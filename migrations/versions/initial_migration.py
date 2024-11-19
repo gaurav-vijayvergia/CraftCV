@@ -47,7 +47,7 @@ def upgrade() -> None:
         sa.Column('user_id', sa.String(36), sa.ForeignKey('users.id'), nullable=False),
         sa.Column('original_filename', sa.String(255), nullable=False),
         sa.Column('file_url', sa.Text, nullable=False),
-        sa.Column('status', sa.Enum('Processing', 'Crafted', name='cvstatus'), server_default='Processing'),
+        sa.Column('status', sa.Enum('PROCESSING', 'CRAFTED', name='cvstatus'), server_default='PROCESSING'),
         sa.Column('parsed_data', sa.JSON, nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'))
     )

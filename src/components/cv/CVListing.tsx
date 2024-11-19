@@ -51,7 +51,7 @@ export default function CVListing() {
     }
   };
 
-  const handleStatusUpdate = async (cvId: string, status: 'Processing' | 'Crafted') => {
+  const handleStatusUpdate = async (cvId: string, status: 'PROCESSING' | 'CRAFTED') => {
     try {
       await updateStatus(cvId, status);
     } catch (error) {
@@ -169,12 +169,12 @@ export default function CVListing() {
                             onClick={() =>
                               handleStatusUpdate(
                                 cv.id,
-                                cv.status === 'Processing' ? 'Crafted' : 'Processing'
+                                cv.status === 'PROCESSING' ? 'CRAFTED' : 'PROCESSING'
                               )
                             }
                             className={cn(
                               'inline-flex rounded-full px-2 text-xs font-semibold leading-5 cursor-pointer transition-colors',
-                              cv.status === 'Crafted'
+                              cv.status === 'CRAFTED'
                                 ? 'bg-green-100 text-green-800 hover:bg-green-200'
                                 : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
                             )}

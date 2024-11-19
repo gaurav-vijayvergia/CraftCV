@@ -5,7 +5,7 @@ interface CV {
   id: string;
   originalFilename: string;
   fileUrl: string;
-  status: 'Processing' | 'Crafted';
+  status: 'PROCESSING' | 'CRAFTED';
   createdAt: string;
 }
 

@@ -19,3 +19,4 @@ langchain-core
 tiktoken
 alembic
 mysqlclient
+python-docx
