@@ -1,7 +1,7 @@
 """Initial migration
 
 Revision ID: 1a2b3c4d5e6f
-Revises:
+Revises: 
 Create Date: 2024-03-15 10:00:00.000000
 
 """
@@ -61,12 +61,12 @@ def upgrade() -> None:
 
     # Create default administrator user
     users = table('users',
-                  column('id', sa.String),
-                  column('username', sa.String),
-                  column('email', sa.String),
-                  column('password', sa.String),
-                  column('created_at', sa.DateTime)
-                  )
+        column('id', sa.String),
+        column('username', sa.String),
+        column('email', sa.String),
+        column('password', sa.String),
+        column('created_at', sa.DateTime)
+    )
 
     admin_id = str(uuid.uuid4())
     hashed_password = pwd_context.hash('@raft@V')
@@ -83,10 +83,10 @@ def upgrade() -> None:
 
     # Create default organization for administrator
     organizations = table('organizations',
-                          column('id', sa.String),
-                          column('user_id', sa.String),
-                          column('created_at', sa.DateTime)
-                          )
+        column('id', sa.String),
+        column('user_id', sa.String),
+        column('created_at', sa.DateTime)
+    )
 
     op.bulk_insert(organizations, [
         {

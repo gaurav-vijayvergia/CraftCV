@@ -51,10 +51,10 @@ class CVParser:
             "phone": "",
             "location": ""
         }
-
+        
         # Split the string by commas
         parts = [part.strip() for part in info_str.split(',')]
-
+        
         for part in parts:
             # Email pattern
             if '@' in part:
@@ -68,7 +68,7 @@ class CVParser:
             # Name (usually comes first)
             else:
                 info["name"] = part.strip()
-
+        
         return info
 
     def extract_text_from_pdf(self, file_path: str) -> str:
@@ -85,7 +85,7 @@ class CVParser:
 
     def extract_text(self, file_path: str) -> str:
         file_extension = os.path.splitext(file_path)[1].lower()
-
+        
         if file_extension == '.pdf':
             return self.extract_text_from_pdf(file_path)
         elif file_extension in ['.docx', '.doc']:
@@ -110,11 +110,11 @@ class CVParser:
 
             # Parse the response into structured data
             parsed_data = parser.parse(result)
-
+            
             # If personal_info is a string, parse it into structured format
             if isinstance(parsed_data.get("personal_info"), str):
                 parsed_data["personal_info"] = self.parse_personal_info(parsed_data["personal_info"])
-
+            
             return parsed_data
 
         except Exception as e:

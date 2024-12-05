@@ -19,3 +19,8 @@ sqlalchemy
 tiktoken
 tzdata
 uvicorn
+langchain-openai
+langchain-core
+alembic
+mysqlclient
+python-docx

@@ -16,14 +16,14 @@ api.interceptors.request.use((config) => {
 
 // Handle token expiry
 api.interceptors.response.use(
-    (response) => response,
-    (error: AxiosError) => {
-      if (error.response?.status === 401) {
-        // Token expired or invalid
-        useAuthStore.getState().logout();
-      }
-      return Promise.reject(error);
+  (response) => response,
+  (error: AxiosError) => {
+    if (error.response?.status === 401) {
+      // Token expired or invalid
+      useAuthStore.getState().logout();
     }
+    return Promise.reject(error);
+  }
 );
 
 interface LoginResponse {
@@ -53,7 +53,7 @@ export const loginUser = async (username: string, password: string): Promise<Log
   const formData = new FormData();
   formData.append('username', username);
   formData.append('password', password);
-
+  
   const response = await api.post<LoginResponse>('/auth/token', formData);
   localStorage.setItem('token', response.data.access_token);
   return response.data;
