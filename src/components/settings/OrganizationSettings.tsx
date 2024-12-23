@@ -1,10 +1,7 @@
-import { useState } from 'react';
-import { Upload, Sun, Moon, Loader2, AlertCircle, Trash2, Plus } from 'lucide-react';
+import { Upload, Sun, Moon, Loader2, AlertCircle, Trash2} from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { useOrganizationStore } from '../../store/organization';
 import { cn } from '../../lib/utils';
-import TemplateEditor from './TemplateEditor';
-import TemplateList from './TemplateList';
 
 export default function OrganizationSettings() {
   const {
@@ -15,8 +12,6 @@ export default function OrganizationSettings() {
     uploadLogo,
     removeLogo,
   } = useOrganizationStore();
-
-  const [showTemplateEditor, setShowTemplateEditor] = useState(false);
 
   const onLogoDrop = async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -200,25 +195,6 @@ export default function OrganizationSettings() {
           </div>
         </div>
 
-        {/* Templates Section */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-medium text-gray-900">CV Templates</h2>
-            <button
-                onClick={() => setShowTemplateEditor(true)}
-                className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Create Template</span>
-            </button>
-          </div>
-
-          <TemplateList />
-        </div>
-
-        {showTemplateEditor && (
-            <TemplateEditor onClose={() => setShowTemplateEditor(false)} />
-        )}
       </div>
   );
 }
