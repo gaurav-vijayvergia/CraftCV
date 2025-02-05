@@ -5,6 +5,7 @@ import { useCVStore } from '../../store/cv';
 import { cn } from '../../lib/utils';
 import CVProfile from './CVProfile';
 import ErrorBoundary from '../ErrorBoundary';
+import {generateCV} from "../../services/api.ts";
 
 interface CV {
   id: string;
@@ -46,20 +47,19 @@ export default function CVListing() {
     }
   };
 
-  const handleDownload = async (fileUrl: string, filename: string) => {
+  const handleDownload = async (cv: CV) => {
     try {
-      const response = await fetch(fileUrl);
-      const blob = await response.blob();
+      const blob = await generateCV(cv.id);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = filename;
+      link.download = `${cv.originalFilename.split('.')[0]}_generated.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Download failed:', error);
+      console.error('Failed to generate CV:', error);
     }
   };
 
@@ -213,7 +213,7 @@ export default function CVListing() {
                             <span className="sr-only">Preview</span>
                           </button>
                           <button
-                            onClick={() => handleDownload(cv.fileUrl, cv.originalFilename)}
+                            onClick={() => handleDownload(cv)}
                             className="text-primary hover:text-primary/90 mr-4 transition-colors"
                             title="Download"
                           >

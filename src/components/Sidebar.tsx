@@ -1,12 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Upload, List, Settings } from 'lucide-react';
+import { Upload, List, Settings, FileText } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useOrganizationStore } from '../store/organization';
 
 const navigation = [
   { name: 'Upload CV', path: '/upload-cv', icon: Upload },
   { name: 'Crafted CVs', path: '/cv-listing', icon: List },
+  { name: 'Templates', path: '/templates', icon: FileText },
   { name: 'Organisation Settings', path: '/settings', icon: Settings },
 ];
 

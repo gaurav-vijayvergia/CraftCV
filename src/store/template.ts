@@ -1,128 +1,53 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
+import { createTemplate, getTemplates, setDefaultTemplate as setDefaultTemplateApi, deleteTemplate as deleteTemplateApi } from '../services/api';
 
-export type LayoutType = 'classic' | 'modern' | 'minimal' | 'creative';
+export type LayoutType = '1-column' | '2-column';
 
-export interface Layout {
-  id: LayoutType;
-  name: string;
-  description: string;
-  preview: string;
-  styles: {
-    container: string;
-    header: string;
-    content: string;
-    columns: number;
-    spacing: string;
-    accent: string;
-  };
+export interface Section {
+  id: string;
+  type: string;
+  title: string;
+  column?: 'left' | 'right' | 'full';
 }
 
 export interface Template {
   id: string;
   name: string;
-  layout: LayoutType | null;
-  sections: TemplateSection[];
+  layout: LayoutType;
+  sections: Section[];
   isDefault: boolean;
   createdAt: string;
 }
 
-export interface TemplateSection {
-  id: string;
-  type: string;
-  title: string;
-}
-
 interface TemplateState {
   templates: Template[];
-  sections: TemplateSection[];
+  sections: Section[];
   selectedLayout: LayoutType | null;
-  isUsingUploadedTemplate: boolean;
-  uploadedTemplateUrl: string | null;
-  addSection: (type: string, title: string) => void;
+  isLoading: boolean;
+  error: string | null;
+  addSection: (section: Section) => void;
   removeSection: (id: string) => void;
-  updateSections: (sections: TemplateSection[]) => void;
+  updateSections: (sections: Section[]) => void;
   setLayout: (layout: LayoutType) => void;
-  saveTemplate: (name?: string) => Promise<void>;
-  setDefaultTemplate: (id: string) => void;
-  removeTemplate: (id: string) => void;
+  saveTemplate: (name: string) => Promise<void>;
+  setDefaultTemplate: (id: string) => Promise<void>;
+  removeTemplate: (id: string) => Promise<void>;
+  fetchTemplates: () => Promise<void>;
   selectTemplate: (template: Template) => void;
-  setUploadedTemplate: (url: string | null) => void;
   resetTemplate: () => void;
+  initializeLayout: (layout: LayoutType) => void;
 }
-
-export const layouts: Layout[] = [
-  {
-    id: 'classic',
-    name: 'Classic',
-    description: 'Traditional layout with a clean, professional look',
-    preview: '/layouts/classic.png',
-    styles: {
-      container: 'max-w-[21cm] mx-auto bg-white shadow-lg p-8',
-      header: 'border-b-2 border-gray-900 pb-4 mb-6',
-      content: 'space-y-6',
-      columns: 1,
-      spacing: 'gap-6',
-      accent: 'border-gray-900',
-    },
-  },
-  {
-    id: 'modern',
-    name: 'Modern',
-    description: 'Contemporary design with bold elements',
-    preview: '/layouts/modern.png',
-    styles: {
-      container: 'max-w-[21cm] mx-auto bg-white shadow-lg p-8 grid grid-cols-3 gap-8',
-      header: 'col-span-3 border-l-4 border-primary pl-4',
-      content: 'space-y-8',
-      columns: 3,
-      spacing: 'gap-8',
-      accent: 'border-primary',
-    },
-  },
-  {
-    id: 'minimal',
-    name: 'Minimal',
-    description: 'Simple and elegant with focus on content',
-    preview: '/layouts/minimal.png',
-    styles: {
-      container: 'max-w-[21cm] mx-auto bg-white shadow-lg p-12',
-      header: 'text-center mb-8',
-      content: 'space-y-8',
-      columns: 1,
-      spacing: 'gap-8',
-      accent: 'border-gray-200',
-    },
-  },
-  {
-    id: 'creative',
-    name: 'Creative',
-    description: 'Unique design for creative professionals',
-    preview: '/layouts/creative.png',
-    styles: {
-      container: 'max-w-[21cm] mx-auto bg-white shadow-lg grid grid-cols-4 gap-6 p-6',
-      header: 'col-span-4 bg-primary text-white p-6 rounded-lg',
-      content: 'space-y-6',
-      columns: 4,
-      spacing: 'gap-6',
-      accent: 'border-primary',
-    },
-  },
-];
 
 export const useTemplateStore = create<TemplateState>((set, get) => ({
   templates: [],
   sections: [],
   selectedLayout: null,
-  isUsingUploadedTemplate: false,
-  uploadedTemplateUrl: null,
+  isLoading: false,
+  error: null,
 
-  addSection: (type: string, title: string) => {
-    const newSection = {
-      id: uuidv4(),
-      type,
-      title,
-    };
+  addSection: (section) => {
+    const newSection = { ...section, id: uuidv4() };
     set((state) => ({
       sections: [...state.sections, newSection],
     }));
@@ -134,7 +59,7 @@ export const useTemplateStore = create<TemplateState>((set, get) => ({
     }));
   },
 
-  updateSections: (sections: TemplateSection[]) => {
+  updateSections: (sections: Section[]) => {
     set({ sections });
   },
 
@@ -142,37 +67,106 @@ export const useTemplateStore = create<TemplateState>((set, get) => ({
     set({ selectedLayout: layout });
   },
 
-  saveTemplate: async (name?: string) => {
+  initializeLayout: (layout: LayoutType) => {
+    set({
+      selectedLayout: layout,
+      sections: [],
+    });
+  },
+
+  saveTemplate: async (name: string) => {
     const state = get();
-    const templateName = name || `Template ${state.templates.length + 1}`;
+    set({ isLoading: true, error: null });
 
-    const newTemplate: Template = {
-      id: uuidv4(),
-      name: templateName,
-      layout: state.selectedLayout,
-      sections: [...state.sections],
-      isDefault: state.templates.length === 0,
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      const response = await createTemplate({
+        name,
+        layout: state.selectedLayout!,
+        sections: state.sections,
+        is_default: state.templates.length === 0
+      });
 
-    set((state) => ({
-      templates: [...state.templates, newTemplate],
-    }));
+      const newTemplate: Template = {
+        id: response.id,
+        name: response.name,
+        layout: response.layout as LayoutType,
+        sections: response.sections,
+        isDefault: response.is_default,
+        createdAt: response.created_at,
+      };
+
+      set((state) => ({
+        templates: [...state.templates, newTemplate],
+        sections: [],
+        selectedLayout: null,
+        isLoading: false,
+      }));
+    } catch (error) {
+      set({
+        error: 'Failed to save template',
+        isLoading: false
+      });
+      throw error;
+    }
   },
 
-  setDefaultTemplate: (id: string) => {
-    set((state) => ({
-      templates: state.templates.map((template) => ({
-        ...template,
-        isDefault: template.id === id,
-      })),
-    }));
+  setDefaultTemplate: async (id: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      await setDefaultTemplateApi(id);
+      set((state) => ({
+        templates: state.templates.map((template) => ({
+          ...template,
+          isDefault: template.id === id,
+        })),
+        isLoading: false,
+      }));
+    } catch (error) {
+      set({
+        error: 'Failed to set default template',
+        isLoading: false
+      });
+      throw error;
+    }
   },
 
-  removeTemplate: (id: string) => {
-    set((state) => ({
-      templates: state.templates.filter((template) => template.id !== id),
-    }));
+  removeTemplate: async (id: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      await deleteTemplateApi(id);
+      set((state) => ({
+        templates: state.templates.filter((template) => template.id !== id),
+        isLoading: false,
+      }));
+    } catch (error) {
+      set({
+        error: 'Failed to delete template',
+        isLoading: false
+      });
+      throw error;
+    }
+  },
+
+  fetchTemplates: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await getTemplates();
+      const templates: Template[] = response.map(t => ({
+        id: t.id,
+        name: t.name,
+        layout: t.layout as LayoutType,
+        sections: t.sections,
+        isDefault: t.is_default,
+        createdAt: t.created_at,
+      }));
+      set({ templates, isLoading: false });
+    } catch (error) {
+      set({
+        error: 'Failed to fetch templates',
+        isLoading: false
+      });
+      throw error;
+    }
   },
 
   selectTemplate: (template: Template) => {
@@ -182,21 +176,10 @@ export const useTemplateStore = create<TemplateState>((set, get) => ({
     });
   },
 
-  setUploadedTemplate: (url: string | null) => {
-    set({
-      isUsingUploadedTemplate: !!url,
-      uploadedTemplateUrl: url,
-      selectedLayout: null,
-      sections: [],
-    });
-  },
-
   resetTemplate: () => {
     set({
       sections: [],
       selectedLayout: null,
-      isUsingUploadedTemplate: false,
-      uploadedTemplateUrl: null,
     });
   },
 }));

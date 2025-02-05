@@ -16,14 +16,14 @@ api.interceptors.request.use((config) => {
 
 // Handle token expiry
 api.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      // Token expired or invalid
-      useAuthStore.getState().logout();
+    (response) => response,
+    (error: AxiosError) => {
+      if (error.response?.status === 401) {
+        // Token expired or invalid
+        useAuthStore.getState().logout();
+      }
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
-  }
 );
 
 interface LoginResponse {
@@ -49,11 +49,25 @@ interface CV {
   parsed_data?: Record<string, unknown>;
 }
 
+interface Template {
+  id: string;
+  name: string;
+  layout: string;
+  sections: Array<{
+    id: string;
+    type: string;
+    title: string;
+    column?: string;
+  }>;
+  is_default: boolean;
+  created_at: string;
+}
+
 export const loginUser = async (username: string, password: string): Promise<LoginResponse> => {
   const formData = new FormData();
   formData.append('username', username);
   formData.append('password', password);
-  
+
   const response = await api.post<LoginResponse>('/auth/token', formData);
   localStorage.setItem('token', response.data.access_token);
   return response.data;
@@ -95,14 +109,14 @@ export const deleteLogo = async (): Promise<OrganizationData> => {
   return response.data;
 };
 
-export const uploadTemplate = async (file: File): Promise<OrganizationData> => {
+export const uploadOrgTemplate = async (file: File): Promise<OrganizationData> => {
   const formData = new FormData();
   formData.append('file', file);
   const response = await api.post<OrganizationData>('/organization/template', formData);
   return response.data;
 };
 
-export const deleteTemplate = async (): Promise<OrganizationData> => {
+export const deleteOrgTemplate = async (): Promise<OrganizationData> => {
   const response = await api.delete<OrganizationData>('/organization/template');
   return response.data;
 };
@@ -132,5 +146,43 @@ export const deleteCV = async (cvId: string): Promise<void> => {
 
 export const getParsedData = async (cvId: string): Promise<any> => {
   const response = await api.get(`/cv/${cvId}/parsed-data`);
+  return response.data;
+};
+
+export const createTemplate = async (template: {
+  name: string;
+  layout: string;
+  sections: Array<{
+    id: string;
+    type: string;
+    title: string;
+    column?: string;
+  }>;
+  is_default: boolean;
+}): Promise<Template> => {
+  const response = await api.post<Template>('/template', template);
+  return response.data;
+};
+
+export const getTemplates = async (): Promise<Template[]> => {
+  const response = await api.get<Template[]>('/template');
+  return response.data;
+};
+
+export const setDefaultTemplate = async (templateId: string): Promise<Template> => {
+  const response = await api.patch<Template>(`/template/${templateId}/set-default`);
+  return response.data;
+};
+
+export const deleteTemplate = async (templateId: string): Promise<void> => {
+  await api.delete(`/template/${templateId}`);
+};
+
+export const generateCV = async (cvId: string, templateId?: string): Promise<Blob> => {
+  const response = await api.post(
+      `/cv/${cvId}/generate${templateId ? `?template_id=${templateId}` : ''}`,
+      {},
+      { responseType: 'blob' }
+  );
   return response.data;
 };

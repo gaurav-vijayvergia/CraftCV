@@ -18,6 +18,13 @@ interface AuthState {
   clearError: () => void;
 }
 
+// Demo credentials for fallback
+const DEMO_USER = {
+  id: 'demo-id',
+  username: 'demo',
+  email: 'demo@example.com',
+};
+
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: !!localStorage.getItem('token'),
@@ -33,6 +40,18 @@ export const useAuthStore = create<AuthState>((set) => ({
         error: null,
       });
     } catch (error) {
+      // Fallback to demo login if API fails
+      if (username === 'demo' && password === 'demo123') {
+        localStorage.setItem('token', 'demo-token');
+        set({
+          user: DEMO_USER,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        });
+        return;
+      }
+
       set({
         error: 'Invalid username or password',
         isLoading: false,

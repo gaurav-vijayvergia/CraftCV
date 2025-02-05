@@ -7,6 +7,8 @@ import Signup from './components/auth/Signup';
 import UploadCV from './components/cv/UploadCV';
 import CVListing from './components/cv/CVListing';
 import OrganizationSettings from './components/settings/OrganizationSettings';
+import TemplateList from "./features/templates/routes/TemplateList.tsx";
+import TemplateDesigner from "./features/templates/routes/TemplateDesigner.tsx";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -29,6 +31,8 @@ function App() {
         >
           <Route path="upload-cv" element={<UploadCV />} />
           <Route path="cv-listing" element={<CVListing />} />
+          <Route path="/templates" element={<TemplateList />} />
+          <Route path="/templates/new" element={<TemplateDesigner />} />
           <Route path="settings" element={<OrganizationSettings />} />
           <Route index element={<Navigate to="/upload-cv" replace />} />
         </Route>

@@ -4,8 +4,8 @@ import {
   updateOrganization,
   uploadLogo,
   deleteLogo,
-  uploadTemplate,
-  deleteTemplate,
+  uploadOrgTemplate,
+  deleteOrgTemplate,
 } from '../services/api';
 
 interface OrganizationSettings {
@@ -112,7 +112,7 @@ export const useOrganizationStore = create<OrganizationState>((set) => ({
   uploadTemplate: async (file: File) => {
     set({ isLoading: true, error: null });
     try {
-      const data = await uploadTemplate(file);
+      const data = await uploadOrgTemplate(file);
       set((state) => ({
         settings: { ...state.settings, cvTemplate: data.cv_template_url },
         isLoading: false,
@@ -124,7 +124,7 @@ export const useOrganizationStore = create<OrganizationState>((set) => ({
   removeTemplate: async () => {
     set({ isLoading: true, error: null });
     try {
-      await deleteTemplate();
+      await deleteOrgTemplate();
       set((state) => ({
         settings: { ...state.settings, cvTemplate: null },
         isLoading: false,
