@@ -65,3 +65,26 @@ class CV(CVBase):
 
 class BulkCVUpload(BaseModel):
     files: List[CVCreate]
+
+class TemplateSection(BaseModel):
+    id: str
+    type: str
+    title: str
+    column: Optional[str] = None
+
+class TemplateBase(BaseModel):
+    name: str
+    layout: str
+    sections: List[TemplateSection]
+    is_default: bool = False
+
+class TemplateCreate(TemplateBase):
+    pass
+
+class Template(TemplateBase):
+    id: str
+    user_id: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
