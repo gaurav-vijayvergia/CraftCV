@@ -37,7 +37,7 @@ CREATE DATABASE craftcv;
 
 5. Start development server:
 ```bash
-uvicorn backend.main:app --reload
+uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ## Project Structure

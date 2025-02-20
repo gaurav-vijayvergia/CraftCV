@@ -4,7 +4,24 @@
     <meta charset="UTF-8">
     <title>CV</title>
     <style>
-        /* Add any additional styles specific to 1-column layout */
+        /* Base styles */
+        body {
+            font-family: var(--font-family);
+            margin: 0;
+            padding: 0;
+            color: #374151;
+            line-height: 1.5;
+        }
+
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm;
+            margin: 0;
+            background-color: white;
+        }
+
+        /* Header styles */
         .header {
             display: flex;
             align-items: center;
@@ -12,91 +29,191 @@
             border-bottom: 2px solid var(--primary-color);
             padding-bottom: 1rem;
         }
-        
+
         .org-logo {
             max-width: 100px;
             max-height: 100px;
-            margin-right: 1rem;
+            margin-right: 1.5rem;
         }
-        
+
+        .header h1 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 2.25rem;
+            font-weight: 600;
+        }
+
+        /* Section styles */
         .section {
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
         }
-        
+
         .section-title {
             color: var(--primary-color);
             font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        /* Content styles */
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .contact-info p {
+            margin: 0;
+            color: #4b5563;
+        }
+
+        .experience-item {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .experience-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .experience-item h3 {
+            color: var(--secondary-color);
+            font-size: 1.1rem;
             margin-bottom: 0.5rem;
         }
-        
+
+        .experience-item .dates {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .experience-item ul {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .experience-item li {
+            margin-bottom: 0.25rem;
+            color: #4b5563;
+        }
+
+        .education-item {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .education-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .education-item h3 {
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .education-item p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .skills-list, .certifications-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .skills-list li, .certifications-list li {
+            background-color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            border: 1px solid #e5e7eb;
+            color: var(--secondary-color);
+            text-align: center;
+        }
+
+        /* Footer styles */
         .footer {
             margin-top: 2rem;
-            border-top: 2px solid var(--primary-color);
             padding-top: 1rem;
             text-align: center;
             color: var(--secondary-color);
+            font-size: 0.875rem;
+            border-top: 2px solid var(--primary-color);
         }
     </style>
 </head>
 <body>
-    <div class="page">
-        <!-- Header -->
-        <div class="header">
-            {% if organization.logo_url %}
-            <img src="{{ organization.logo_url }}" alt="Organization Logo" class="org-logo">
-            {% endif %}
-            <h1>{{ cv_data.personal_info.name }}</h1>
-        </div>
-
-        <!-- Main Content -->
-        {% for section in template %}
-            <div class="section">
-                <h2 class="section-title">{{ section.title }}</h2>
-                {% if section.type == 'personal-info' %}
-                    <p>Email: {{ cv_data.personal_info.email }}</p>
-                    <p>Phone: {{ cv_data.personal_info.phone }}</p>
-                    <p>Location: {{ cv_data.personal_info.location }}</p>
-                {% elif section.type == 'summary' %}
-                    <p>{{ cv_data.summary }}</p>
-                {% elif section.type == 'experience' %}
-                    {% for exp in cv_data.work_experience %}
-                    <div class="experience-item">
-                        <h3>{{ exp.position }} at {{ exp.company }}</h3>
-                        <p>{{ exp.dates }}</p>
-                        <ul>
-                            {% for resp in exp.responsibilities %}
-                            <li>{{ resp }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    {% endfor %}
-                {% elif section.type == 'education' %}
-                    {% for edu in cv_data.education %}
-                    <div class="education-item">
-                        <h3>{{ edu.degree }}</h3>
-                        <p>{{ edu.institution }} - {{ edu.dates }}</p>
-                    </div>
-                    {% endfor %}
-                {% elif section.type == 'skills' %}
-                    <ul>
-                        {% for skill in cv_data.skills %}
-                        <li>{{ skill }}</li>
-                        {% endfor %}
-                    </ul>
-                {% elif section.type == 'certifications' %}
-                    <ul>
-                        {% for cert in cv_data.certifications %}
-                        <li>{{ cert }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </div>
-        {% endfor %}
-
-        <!-- Footer -->
-        <div class="footer">
-            <p>Generated with CraftCV</p>
-        </div>
+<div class="page">
+    <!-- Header -->
+    <div class="header">
+        {% if organization.logo_url %}
+        <img src="{{ organization.logo_url }}" alt="Organization Logo" class="org-logo">
+        {% endif %}
+        <h1>{{ cv_data.personal_info.name }}</h1>
     </div>
+
+    <!-- Main Content -->
+    {% for section in sections %}
+    <div class="section">
+        {% elif section.type == 'summary' and cv_data.summary %}
+        <p>{{ cv_data.summary }}</p>
+        {% elif section.type == 'experience' and cv_data.work_experience %}
+        {% for exp in cv_data.work_experience %}
+        <div class="experience-item">
+            <h3>{{ exp.position }} at {{ exp.company }}</h3>
+            <p class="dates">{{ exp.dates }}</p>
+            <ul>
+                {% for resp in exp.responsibilities %}
+                <li>{{ resp }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+        {% elif section.type == 'education' and cv_data.education %}
+        {% for edu in cv_data.education %}
+        <div class="education-item">
+            <h3>{{ edu.degree }}</h3>
+            <p>{{ edu.institution }} - {{ edu.dates }}</p>
+        </div>
+        {% endfor %}
+        {% elif section.type == 'skills' and cv_data.skills %}
+        <ul class="skills-list">
+            {% for skill in cv_data.skills %}
+            <li>{{ skill }}</li>
+            {% endfor %}
+        </ul>
+        {% elif section.type == 'certifications' and cv_data.certifications %}
+        <ul class="certifications-list">
+            {% for cert in cv_data.certifications %}
+            <li>{{ cert }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>Generated with CraftCV</p>
+    </div>
+</div>
 </body>
 </html>
