@@ -16,14 +16,14 @@ api.interceptors.request.use((config) => {
 
 // Handle token expiry
 api.interceptors.response.use(
-    (response) => response,
-    (error: AxiosError) => {
-      if (error.response?.status === 401) {
-        // Token expired or invalid
-        useAuthStore.getState().logout();
-      }
-      return Promise.reject(error);
+  (response) => response,
+  (error: AxiosError) => {
+    if (error.response?.status === 401) {
+      // Token expired or invalid
+      useAuthStore.getState().logout();
     }
+    return Promise.reject(error);
+  }
 );
 
 interface LoginResponse {
@@ -49,16 +49,18 @@ interface CV {
   parsed_data?: Record<string, unknown>;
 }
 
-interface Template {
+export interface APISection {
+  id: string;
+  type: string;
+  title: string;
+  column?: 'left' | 'right' | 'full';
+}
+
+export interface APITemplate {
   id: string;
   name: string;
   layout: string;
-  sections: Array<{
-    id: string;
-    type: string;
-    title: string;
-    column?: string;
-  }>;
+  sections: APISection[];
   is_default: boolean;
   created_at: string;
 }
@@ -67,7 +69,7 @@ export const loginUser = async (username: string, password: string): Promise<Log
   const formData = new FormData();
   formData.append('username', username);
   formData.append('password', password);
-
+  
   const response = await api.post<LoginResponse>('/auth/token', formData);
   localStorage.setItem('token', response.data.access_token);
   return response.data;
@@ -152,25 +154,20 @@ export const getParsedData = async (cvId: string): Promise<any> => {
 export const createTemplate = async (template: {
   name: string;
   layout: string;
-  sections: Array<{
-    id: string;
-    type: string;
-    title: string;
-    column?: string;
-  }>;
+  sections: APISection[];
   is_default: boolean;
-}): Promise<Template> => {
-  const response = await api.post<Template>('/template', template);
+}): Promise<APITemplate> => {
+  const response = await api.post<APITemplate>('/template', template);
   return response.data;
 };
 
-export const getTemplates = async (): Promise<Template[]> => {
-  const response = await api.get<Template[]>('/template');
+export const getTemplates = async (): Promise<APITemplate[]> => {
+  const response = await api.get<APITemplate[]>('/template');
   return response.data;
 };
 
-export const setDefaultTemplate = async (templateId: string): Promise<Template> => {
-  const response = await api.patch<Template>(`/template/${templateId}/set-default`);
+export const setDefaultTemplate = async (templateId: string): Promise<APITemplate> => {
+  const response = await api.patch<APITemplate>(`/template/${templateId}/set-default`);
   return response.data;
 };
 
@@ -180,9 +177,9 @@ export const deleteTemplate = async (templateId: string): Promise<void> => {
 
 export const generateCV = async (cvId: string, templateId?: string): Promise<Blob> => {
   const response = await api.post(
-      `/cv/${cvId}/generate${templateId ? `?template_id=${templateId}` : ''}`,
-      {},
-      { responseType: 'blob' }
+    `/cv/${cvId}/generate${templateId ? `?template_id=${templateId}` : ''}`,
+    {},
+    { responseType: 'blob' }
   );
   return response.data;
 };

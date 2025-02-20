@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LayoutSelector from '../components/LayoutSelector';
-import TemplateEditor from '../components/TemplateEditor';
+import SectionEditor from '../components/SectionEditor';
 import { useTemplateStore } from '../../../store/template';
 import { Layout } from '../types';
 
@@ -28,12 +28,12 @@ export default function TemplateDesigner() {
   };
 
   return (
-      <div className="p-6">
-        {!selectedLayout ? (
-            <LayoutSelector onSelect={handleLayoutSelect} />
-        ) : (
-            <TemplateEditor onSave={handleSave} />
-        )}
-      </div>
+    <div className="p-6">
+      {!selectedLayout ? (
+        <LayoutSelector onSelect={handleLayoutSelect} />
+      ) : (
+        <SectionEditor onSave={handleSave} />
+      )}
+    </div>
   );
 }

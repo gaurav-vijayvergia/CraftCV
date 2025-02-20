@@ -2,28 +2,18 @@ import { DndContext, DragEndEvent, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
-import { useTemplateStore } from '../store/templateStore';
+import { useTemplateStore } from '../../../store/template';
 import SortableSection from './SortableSection';
-import { Section } from '../types';
+import { AVAILABLE_SECTIONS } from '../constants';
+import { Section, SectionType } from '../types';
 import { cn } from '../../../lib/utils';
 
 interface SectionEditorProps {
   onSave: (name: string) => void;
 }
 
-const availableSections: Section[] = [
-  { id: 'header', type: 'header', title: 'Header', column: 'full' },
-  { id: 'personal-info', type: 'personal-info', title: 'Personal Info', column: 'left' },
-  { id: 'summary', type: 'summary', title: 'Professional Summary', column: 'right' },
-  { id: 'experience', type: 'experience', title: 'Work Experience', column: 'right' },
-  { id: 'education', type: 'education', title: 'Education', column: 'right' },
-  { id: 'skills', type: 'skills', title: 'Skills', column: 'left' },
-  { id: 'certifications', type: 'certifications', title: 'Certifications', column: 'left' },
-  { id: 'footer', type: 'footer', title: 'Footer', column: 'full' },
-];
-
 export default function SectionEditor({ onSave }: SectionEditorProps) {
-  const { sections, addSection, updateSections, selectedLayout } = useTemplateStore();
+  const { sections, addSection, updateSections, selectedLayout, canAddSection } = useTemplateStore();
   const [templateName, setTemplateName] = useState('');
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -68,16 +58,32 @@ export default function SectionEditor({ onSave }: SectionEditorProps) {
           <div className="bg-white rounded-lg shadow p-4">
             <h3 className="text-sm font-medium text-gray-900 mb-4">Available Sections</h3>
             <div className="space-y-2">
-              {availableSections.map((section) => (
-                <button
-                  key={section.id}
-                  onClick={() => addSection(section)}
-                  className="w-full flex items-center space-x-2 p-2 rounded hover:bg-gray-50 transition-colors"
-                >
-                  <Plus className="h-4 w-4 text-primary" />
-                  <span className="text-sm text-gray-700">{section.title}</span>
-                </button>
-              ))}
+              {AVAILABLE_SECTIONS.map((section) => {
+                const isAvailable = canAddSection(section.type as SectionType);
+                const column = selectedLayout === '2-column' ? section.allowedColumns[0] : 'full';
+                
+                return (
+                  <button
+                    key={section.type}
+                    onClick={() => isAvailable && addSection(section.type as SectionType, column)}
+                    disabled={!isAvailable}
+                    className={cn(
+                      "w-full flex items-center justify-between p-2 rounded transition-colors",
+                      isAvailable 
+                        ? "hover:bg-gray-50 text-gray-700" 
+                        : "opacity-50 cursor-not-allowed text-gray-400"
+                    )}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Plus className="h-4 w-4 text-primary" />
+                      <span className="text-sm">{section.title}</span>
+                    </div>
+                    {!isAvailable && (
+                      <span className="text-xs text-gray-400">Max limit reached</span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

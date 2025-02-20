@@ -1,7 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, X } from 'lucide-react';
-import { useTemplateStore } from '../store/templateStore';
+import { useTemplateStore } from '../../../store/template';
 import { Section } from '../types';
 import { cn } from '../../../lib/utils';
 
@@ -32,6 +32,7 @@ export default function SortableSection({ section }: SortableSectionProps) {
       className={cn(
         'flex items-center justify-between p-3 bg-white border rounded-lg group',
         isDragging ? 'opacity-50' : 'hover:border-primary',
+        section.column === 'full' && 'col-span-full'
       )}
       {...attributes}
     >

@@ -9,21 +9,21 @@ class CVGenerator:
         self.env = Environment(
             loader=FileSystemLoader("backend/templates")
         )
-
+        
         # Ensure output directory exists
         os.makedirs("uploads/generated", exist_ok=True)
 
     async def generate_pdf(
-            self,
-            cv: CV,
-            template: Template,
-            organization: Organization,
-            output_path: str
+        self,
+        cv: CV,
+        template: Template,
+        organization: Organization,
+        output_path: str
     ) -> str:
         # Load the appropriate template based on layout
         template_name = f"{template.layout}.html"
         template = self.env.get_template(template_name)
-
+        
         # Prepare the context for the template
         context = {
             "cv_data": cv.parsed_data,
@@ -35,10 +35,10 @@ class CVGenerator:
             },
             "template": template.sections
         }
-
+        
         # Render the HTML
         html_content = template.render(**context)
-
+        
         # Create CSS with dynamic values
         css = CSS(string=f"""
             :root {{
@@ -65,11 +65,11 @@ class CVGenerator:
                 margin: 0;
             }}
         """)
-
+        
         # Generate PDF
         HTML(string=html_content).write_pdf(
             output_path,
             stylesheets=[css]
         )
-
+        
         return output_path

@@ -1,5 +1,5 @@
 import { Check, FileText, Trash2 } from 'lucide-react';
-import { useTemplateStore } from '../store/templateStore';
+import { useTemplateStore } from '../../../store/template';
 import { Template } from '../types';
 import { cn } from '../../../lib/utils';
 
@@ -35,11 +35,13 @@ export default function TemplateCard({ template }: TemplateCardProps) {
             'aspect-[210/297] bg-gray-50 rounded border',
             template.layout === '2-column' ? 'grid grid-cols-2 gap-2' : 'flex flex-col'
           )}>
-            {/* Template preview */}
             {template.sections.map((section, index) => (
               <div
                 key={index}
-                className="bg-gray-100 h-4 rounded m-2"
+                className={cn(
+                  "bg-gray-100 h-4 rounded m-2",
+                  section.column === 'full' && "col-span-full"
+                )}
                 style={{ width: `${Math.random() * 40 + 40}%` }}
               />
             ))}

@@ -66,8 +66,19 @@ npm run build
 
 ### Backend Setup
 
-1. Create a virtual environment:
+1. Install Python & create a virtual environment:
 ```bash
+
+sudo apt-get update && sudo apt-get install -y build-essential libffi-dev libssl-dev zlib1g-dev liblzma-dev libsqlite3-dev libreadline-dev libbz2-dev libncursesw5-dev libgdbm-dev libnss3-dev tk-dev uuid-dev curl
+
+curl https://pyenv.run | bash
+pyenv install --list
+pyenv install 3.12.9
+pyenv global 3.12.9
+pyenv virtualenv 3.12.9 craftcv_env
+
+or
+
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```

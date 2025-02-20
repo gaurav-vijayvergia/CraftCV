@@ -12,23 +12,23 @@
             border-bottom: 2px solid var(--primary-color);
             padding-bottom: 1rem;
         }
-
+        
         .org-logo {
             max-width: 100px;
             max-height: 100px;
             margin-right: 1rem;
         }
-
+        
         .section {
             margin-bottom: 1.5rem;
         }
-
+        
         .section-title {
             color: var(--primary-color);
             font-size: 1.25rem;
             margin-bottom: 0.5rem;
         }
-
+        
         .footer {
             margin-top: 2rem;
             border-top: 2px solid var(--primary-color);
@@ -39,64 +39,64 @@
     </style>
 </head>
 <body>
-<div class="page">
-    <!-- Header -->
-    <div class="header">
-        {% if organization.logo_url %}
-        <img src="{{ organization.logo_url }}" alt="Organization Logo" class="org-logo">
-        {% endif %}
-        <h1>{{ cv_data.personal_info.name }}</h1>
-    </div>
-
-    <!-- Main Content -->
-    {% for section in template %}
-    <div class="section">
-        <h2 class="section-title">{{ section.title }}</h2>
-        {% if section.type == 'personal-info' %}
-        <p>Email: {{ cv_data.personal_info.email }}</p>
-        <p>Phone: {{ cv_data.personal_info.phone }}</p>
-        <p>Location: {{ cv_data.personal_info.location }}</p>
-        {% elif section.type == 'summary' %}
-        <p>{{ cv_data.summary }}</p>
-        {% elif section.type == 'experience' %}
-        {% for exp in cv_data.work_experience %}
-        <div class="experience-item">
-            <h3>{{ exp.position }} at {{ exp.company }}</h3>
-            <p>{{ exp.dates }}</p>
-            <ul>
-                {% for resp in exp.responsibilities %}
-                <li>{{ resp }}</li>
-                {% endfor %}
-            </ul>
+    <div class="page">
+        <!-- Header -->
+        <div class="header">
+            {% if organization.logo_url %}
+            <img src="{{ organization.logo_url }}" alt="Organization Logo" class="org-logo">
+            {% endif %}
+            <h1>{{ cv_data.personal_info.name }}</h1>
         </div>
-        {% endfor %}
-        {% elif section.type == 'education' %}
-        {% for edu in cv_data.education %}
-        <div class="education-item">
-            <h3>{{ edu.degree }}</h3>
-            <p>{{ edu.institution }} - {{ edu.dates }}</p>
-        </div>
-        {% endfor %}
-        {% elif section.type == 'skills' %}
-        <ul>
-            {% for skill in cv_data.skills %}
-            <li>{{ skill }}</li>
-            {% endfor %}
-        </ul>
-        {% elif section.type == 'certifications' %}
-        <ul>
-            {% for cert in cv_data.certifications %}
-            <li>{{ cert }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-    </div>
-    {% endfor %}
 
-    <!-- Footer -->
-    <div class="footer">
-        <p>Generated with CraftCV</p>
+        <!-- Main Content -->
+        {% for section in template %}
+            <div class="section">
+                <h2 class="section-title">{{ section.title }}</h2>
+                {% if section.type == 'personal-info' %}
+                    <p>Email: {{ cv_data.personal_info.email }}</p>
+                    <p>Phone: {{ cv_data.personal_info.phone }}</p>
+                    <p>Location: {{ cv_data.personal_info.location }}</p>
+                {% elif section.type == 'summary' %}
+                    <p>{{ cv_data.summary }}</p>
+                {% elif section.type == 'experience' %}
+                    {% for exp in cv_data.work_experience %}
+                    <div class="experience-item">
+                        <h3>{{ exp.position }} at {{ exp.company }}</h3>
+                        <p>{{ exp.dates }}</p>
+                        <ul>
+                            {% for resp in exp.responsibilities %}
+                            <li>{{ resp }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                {% elif section.type == 'education' %}
+                    {% for edu in cv_data.education %}
+                    <div class="education-item">
+                        <h3>{{ edu.degree }}</h3>
+                        <p>{{ edu.institution }} - {{ edu.dates }}</p>
+                    </div>
+                    {% endfor %}
+                {% elif section.type == 'skills' %}
+                    <ul>
+                        {% for skill in cv_data.skills %}
+                        <li>{{ skill }}</li>
+                        {% endfor %}
+                    </ul>
+                {% elif section.type == 'certifications' %}
+                    <ul>
+                        {% for cert in cv_data.certifications %}
+                        <li>{{ cert }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Generated with CraftCV</p>
+        </div>
     </div>
-</div>
 </body>
 </html>
