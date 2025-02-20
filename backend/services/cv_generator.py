@@ -61,7 +61,7 @@ class CVGenerator:
         context = {
             "cv_data": cv_data,
             "organization": {
-                "logo_url": f"https://dev.craftcv.ai/{organization.logo_url}",
+                "logo_url": organization.logo_url,
                 "primary_color": organization.primary_color,
                 "secondary_color": organization.secondary_color,
                 "font": organization.font
