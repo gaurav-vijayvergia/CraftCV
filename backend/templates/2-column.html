@@ -26,15 +26,15 @@
         .header {
             display: flex;
             align-items: center;
+            gap: 1.5rem;
             margin-bottom: 2rem;
             border-bottom: 2px solid var(--primary-color);
             padding-bottom: 1rem;
-            gap: 1.5rem;
         }
 
         .org-logo {
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
             object-fit: contain;
         }
 
@@ -49,20 +49,17 @@
         /* Layout */
         .main-content {
             display: flex;
-            gap: 2rem;
+            gap: 1rem;
         }
 
         .left-column {
-            width: 35%;
-            background-color: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 0.5rem;
-            border: 1px solid #e5e7eb;
+            flex: 1;
+            max-width: 35%;
+            margin-right: 0.75rem;
         }
 
         .right-column {
-            width: 65%;
-            padding: 0.5rem;
+            flex: 2;
         }
 
         /* Section styles */
@@ -81,13 +78,7 @@
         }
 
         /* Content styles */
-        .contact-info {
-            margin-bottom: 1rem;
-        }
-
         .contact-info p {
-            display: flex;
-            align-items: center;
             margin: 0.5rem 0;
             color: #4b5563;
             word-break: break-word;
@@ -130,14 +121,10 @@
 
         .education-item {
             margin-bottom: 1rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e5e7eb;
         }
 
         .education-item:last-child {
             margin-bottom: 0;
-            padding-bottom: 0;
-            border-bottom: none;
         }
 
         .education-item h3 {
@@ -160,11 +147,10 @@
         }
 
         .skills-list li, .certifications-list li {
-            background-color: white;
+            background-color: #f3f4f6;
             padding: 0.5rem 1rem;
             margin-bottom: 0.5rem;
             border-radius: 0.25rem;
-            border: 1px solid #e5e7eb;
             color: var(--secondary-color);
         }
 
@@ -206,11 +192,10 @@
 <div class="page">
     <!-- Header -->
     <div class="header">
-        <h1>{{ organization.name }}</h1>
         {% if organization.logo_url %}
         <img src="{{ organization.logo_url }}" alt="Organization Logo" class="org-logo">
         {% endif %}
-        <h1>{{ cv_data.personal_info.name }}</h1>
+        <h2>{{ cv_data.personal_info.name }}</h2>
     </div>
 
     <!-- Main Content -->
@@ -220,10 +205,7 @@
             {% for section in sections %}
             {% if section.column == 'left' %}
             <div class="section">
-
-                {% if section.type != 'personal-info' %}
                 <h2 class="section-title">{{ section.title }}</h2>
-                {% endif %}
                 {% if section.type == 'skills' and cv_data.skills %}
                 <ul class="skills-list">
                     {% for skill in cv_data.skills %}

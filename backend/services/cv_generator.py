@@ -3,6 +3,7 @@ from jinja2 import Environment, FileSystemLoader
 import os
 from typing import Dict, Any
 from ..models import CV, Organization, Template
+from ..config import settings
 
 class CVGenerator:
     def __init__(self):
@@ -12,6 +13,18 @@ class CVGenerator:
 
         # Ensure output directory exists
         os.makedirs("uploads/generated", exist_ok=True)
+
+    def get_local_path(self, url_path: str | None) -> str | None:
+        """Convert URL path to local file path."""
+        if not url_path:
+            return None
+        if url_path.startswith(('http://', 'https://')):
+            return None
+        # Remove leading slash if present
+        if url_path.startswith('/'):
+            url_path = url_path[1:]
+        # Get absolute path
+        return os.path.abspath(url_path)
 
     async def generate_pdf(
             self,
@@ -57,16 +70,22 @@ class CVGenerator:
             'certifications': cv_data.get('certifications', [])
         }
 
+        # Filter out personal-info section
+        filtered_sections = [s for s in template.sections if s.get('type') != 'personal-info']
+
+        # Get local path for logo
+        logo_path = self.get_local_path(organization.logo_url)
+
         # Prepare the context for the template
         context = {
             "cv_data": cv_data,
             "organization": {
-                "logo_url": organization.logo_url,
+                "logo_url": f"file://{logo_path}" if logo_path else None,
                 "primary_color": organization.primary_color,
                 "secondary_color": organization.secondary_color,
                 "font": organization.font
             },
-            "sections": template.sections
+            "sections": filtered_sections
         }
 
         # Render the HTML
@@ -80,6 +99,11 @@ class CVGenerator:
                 --font-family: {organization.font}, system-ui, sans-serif;
             }}
             
+            @page {{
+                size: A4;
+                margin: 0;
+            }}
+            
             body {{
                 font-family: var(--font-family);
                 margin: 0;
@@ -89,13 +113,9 @@ class CVGenerator:
             .page {{
                 width: 210mm;
                 min-height: 297mm;
-                padding: 20mm;
+                padding: 15mm;
                 margin: 0;
-            }}
-            
-            @page {{
-                size: A4;
-                margin: 0;
+                box-sizing: border-box;
             }}
         """)
 

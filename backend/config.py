@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     UPLOAD_DIR: str = "uploads"
     OPENAI_API_KEY: str = ""
+    APP_URL: str = "http://localhost:8000"
 
     class Config:
         env_file = ".env"
