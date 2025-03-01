@@ -70,9 +70,6 @@ class CVGenerator:
             'certifications': cv_data.get('certifications', [])
         }
 
-        # Filter out personal-info section
-        filtered_sections = [s for s in template.sections if s.get('type') != 'personal-info']
-
         # Get local path for logo
         logo_path = self.get_local_path(organization.logo_url)
 
@@ -85,7 +82,7 @@ class CVGenerator:
                 "secondary_color": organization.secondary_color,
                 "font": organization.font
             },
-            "sections": filtered_sections
+            "sections": template.sections
         }
 
         # Render the HTML

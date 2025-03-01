@@ -46,6 +46,12 @@ A modern web application for managing and branding CVs/resumes with organization
 
 1. Install dependencies:
 ```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+nvm install latest
+nvm ls-remote
+nvm install v23.8.0
+nvm alias default v23.8.0
+
 npm install
 ```
 
